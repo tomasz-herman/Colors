@@ -175,6 +175,11 @@
                     <properties>
                       <model>
                         <item value="sRGB"/>
+                        <item value="Adobe RGB"/>
+                        <item value="Apple RGB"/>
+                        <item value="CIE RGB"/>
+                        <item value="Wide Gamut"/>
+                        <item value="PAL/SECAM"/>
                       </model>
                     </properties>
                   </component>
@@ -184,7 +189,18 @@
                     </constraints>
                     <properties>
                       <model>
+                        <item value="A"/>
+                        <item value="B"/>
+                        <item value="C"/>
+                        <item value="D50"/>
+                        <item value="D55"/>
                         <item value="D65"/>
+                        <item value="D75"/>
+                        <item value="9300K"/>
+                        <item value="E"/>
+                        <item value="F2"/>
+                        <item value="F7"/>
+                        <item value="F11"/>
                       </model>
                     </properties>
                   </component>

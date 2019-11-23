@@ -45,7 +45,6 @@ public interface Separation {
             h = h / 6.0f;
             if (h < 0.0f) h += 1.0f;
             if (h > 1.0f) h -= 1.0f;
-            System.out.println(h);
             return interpolate.apply(new float[]{h, s, v});
         };
     }
@@ -100,6 +99,9 @@ public interface Separation {
         final Function<float[], Color3f[]> interpolate = coefficients -> new Color3f[]{new Color3f(coefficients[0]), Color3f.interpolate(spring_green, rose, coefficients[1]), Color3f.interpolate(azure, orange, coefficients[2])};
         return color -> {
             Vector3f rgb = new Vector3f(color.red, color.green, color.blue);
+            rgb.x = (float)Math.pow(rgb.x, gamma);
+            rgb.y = (float)Math.pow(rgb.y, gamma);
+            rgb.z = (float)Math.pow(rgb.z, gamma);
             rgb = rgb.mulTranspose(M);
             float f_x = f.apply(rgb.x / X_w);
             float f_y = f.apply(rgb.y / Y_w);

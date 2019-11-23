@@ -10,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -65,6 +67,17 @@ public class Layout {
                     (float) (double) gamma_spinner.getModel().getValue())
     );
 
+    private static final Map<String, double[]> ILLUMINANTS = Map.ofEntries(Map.entry("A", new double[]{0.44757f, 0.40744f}), Map.entry("B", new double[]{0.34840f, 0.3516f}), Map.entry("C", new double[]{0.31006f, 0.31615f}), Map.entry("D50", new double[]{0.34567f, 0.3585f}), Map.entry("D55", new double[]{0.33242f, 0.34743f}), Map.entry("D65", new double[]{0.31273f, 0.32902f}), Map.entry("D75", new double[]{0.29902f, 0.31485f}), Map.entry("9300K", new double[]{0.2848f, 0.2932f}), Map.entry("E", new double[]{0.33333f, 0.33333f}), Map.entry("F2", new double[]{0.37207f, 0.37512f}), Map.entry("F7", new double[]{0.31285f, 0.32918f}), Map.entry("F11", new double[]{0.38054f, 0.37692f}));
+
+    private static final Map<String, double[]> COLOR_SPACES = Map.of(
+            "sRGB", new double[]{0.64, 0.33, 0.3, 0.6, 0.15, 0.06, 0.3127, 0.3290, 2.2},
+            "Adobe RGB", new double[]{0.64, 0.33, 0.21, 0.71, 0.15, 0.06, 0.3127, 0.329, 2.2},
+            "Apple RGB", new double[]{0.625, 0.340, 0.28, 0.595, 0.155, 0.07, 0.3127, 0.329, 1.8},
+            "CIE RGB", new double[]{0.735, 0.265, 0.274, 0.717, 0.167, 0.009, 0.3333, 0.3333, 2.2},
+            "Wide Gamut", new double[]{0.7347, 0.2653, 0.1152, 0.8264, 0.1566, 0.0177, 0.3457, 0.3585, 1.2},
+            "PAL/SECAM", new double[]{0.64, 0.33, 0.29, 0.6, 0.15, 0.06, 0.3127, 0.329, 1.95}
+    );
+
     private Canvas input_canvas;
     private Canvas output_canvas_0;
     private Canvas output_canvas_1;
@@ -90,15 +103,15 @@ public class Layout {
         output_panel_2.add(output_canvas_2 = new com.hermant.graphics.Canvas(OUTPUT_PANEL_WIDTH, OUTPUT_PANEL_HEIGHT));
         input_panel.add(input_canvas = new com.hermant.graphics.Canvas(INPUT_PANEL_WIDTH, INPUT_PANEL_HEIGHT));
         separation_combo_box.addActionListener(e -> setOutputNames(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString()));
-        x_r_spinner.setModel(new SpinnerNumberModel(0.64f, 0.0f, 1.0f, 0.01f));
-        y_r_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0f, 1.0f, 0.01f));
-        x_g_spinner.setModel(new SpinnerNumberModel(0.3f, 0.0f, 1.0f, 0.01f));
-        y_g_spinner.setModel(new SpinnerNumberModel(0.6f, 0.0f, 1.0f, 0.01f));
-        x_b_spinner.setModel(new SpinnerNumberModel(0.15f, 0.0f, 1.0f, 0.01f));
-        y_b_spinner.setModel(new SpinnerNumberModel(0.06f, 0.0f, 1.0f, 0.01f));
-        x_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0f, 1.0f, 0.01f));
-        y_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0f, 1.0f, 0.01f));
-        gamma_spinner.setModel(new SpinnerNumberModel(1.0f, 0.0f, 10.0f, 0.1f));
+        x_r_spinner.setModel(new SpinnerNumberModel(0.64f, 0.0001f, 1.0f, 0.01f));
+        y_r_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0001f, 1.0f, 0.01f));
+        x_g_spinner.setModel(new SpinnerNumberModel(0.3f, 0.001f, 1.0f, 0.01f));
+        y_g_spinner.setModel(new SpinnerNumberModel(0.6f, 0.001f, 1.0f, 0.01f));
+        x_b_spinner.setModel(new SpinnerNumberModel(0.15f, 0.001f, 1.0f, 0.01f));
+        y_b_spinner.setModel(new SpinnerNumberModel(0.06f, 0.001f, 1.0f, 0.01f));
+        x_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.001f, 1.0f, 0.01f));
+        y_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.001f, 1.0f, 0.01f));
+        gamma_spinner.setModel(new SpinnerNumberModel(1.0f, 0.001f, 10.0f, 0.1f));
         save_button.setMnemonic('s');
         load_button.setMnemonic('l');
         save_button.addActionListener(e -> {
@@ -113,6 +126,7 @@ public class Layout {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = input_chooser.getSelectedFile();
                 String resource = file.getPath();
+                input_panel_border.setBorder(new TitledBorder(resource));
                 try {
                     texture = new Texture(resource);
                     for (int i = 0; i < input_canvas.getWidth(); i++) {
@@ -143,6 +157,8 @@ public class Layout {
                 output_canvas_2.repaint();
             }
         });
+        illuminant_combo_box.addActionListener(e -> setWhitePoint(Objects.requireNonNull(illuminant_combo_box.getSelectedItem()).toString()));
+        color_profile_combo_box.addActionListener(e -> setColorSpace(Objects.requireNonNull(color_profile_combo_box.getSelectedItem()).toString()));
     }
 
     public Container getMainPanel() {
@@ -165,4 +181,29 @@ public class Layout {
         output_chooser.setCurrentDirectory(workingDirectory);
     }
 
+    private void setWhitePoint(String illuminant) {
+        double[] values = ILLUMINANTS.get(illuminant);
+        if (values == null) return;
+        x_w_spinner.getModel().setValue(values[0]);
+        y_w_spinner.getModel().setValue(values[1]);
+    }
+
+    private void setColorSpace(String colorSpace) {
+        double[] values = COLOR_SPACES.get(colorSpace);
+        if (values == null) {
+            System.out.println(colorSpace + " not found");
+            return;
+        }
+        x_r_spinner.getModel().setValue(values[0]);
+        y_r_spinner.getModel().setValue(values[1]);
+        x_g_spinner.getModel().setValue(values[2]);
+        y_g_spinner.getModel().setValue(values[3]);
+        x_b_spinner.getModel().setValue(values[4]);
+        y_b_spinner.getModel().setValue(values[5]);
+        x_w_spinner.getModel().setValue(values[6]);
+        y_w_spinner.getModel().setValue(values[7]);
+        gamma_spinner.getModel().setValue(values[8]);
+
+
+    }
 }
