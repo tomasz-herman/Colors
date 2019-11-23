@@ -5,13 +5,13 @@ import com.hermant.colors.Separation;
 import com.hermant.graphics.Canvas;
 import com.hermant.graphics.Texture;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -84,7 +84,7 @@ public class Layout {
     private Canvas output_canvas_2;
 
 
-    public Layout() {
+    Layout() {
         setPanels();
         setupFileChoosers();
     }
@@ -102,7 +102,6 @@ public class Layout {
         output_panel_1.add(output_canvas_1 = new com.hermant.graphics.Canvas(OUTPUT_PANEL_WIDTH, OUTPUT_PANEL_HEIGHT));
         output_panel_2.add(output_canvas_2 = new com.hermant.graphics.Canvas(OUTPUT_PANEL_WIDTH, OUTPUT_PANEL_HEIGHT));
         input_panel.add(input_canvas = new com.hermant.graphics.Canvas(INPUT_PANEL_WIDTH, INPUT_PANEL_HEIGHT));
-        separation_combo_box.addActionListener(e -> setOutputNames(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString()));
         x_r_spinner.setModel(new SpinnerNumberModel(0.64f, 0.0001f, 1.0f, 0.01f));
         y_r_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0001f, 1.0f, 0.01f));
         x_g_spinner.setModel(new SpinnerNumberModel(0.3f, 0.001f, 1.0f, 0.01f));
@@ -119,6 +118,7 @@ public class Layout {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = output_chooser.getSelectedFile();
                 String resource = file.getPath();
+                write(resource);
             }
         });
         load_button.addActionListener(e -> {
@@ -142,6 +142,7 @@ public class Layout {
         });
         separate_button.addActionListener(e -> {
             if (texture != null) {
+                setOutputNames(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString());
                 Separation separation = SEPARATION_FUNCTIONS.get(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString()).get();
                 for (int i = 0; i < output_canvas_0.getWidth(); i++) {
                     for (int j = 0; j < output_canvas_0.getHeight(); j++) {
@@ -161,11 +162,11 @@ public class Layout {
         color_profile_combo_box.addActionListener(e -> setColorSpace(Objects.requireNonNull(color_profile_combo_box.getSelectedItem()).toString()));
     }
 
-    public Container getMainPanel() {
+    Container getMainPanel() {
         return main_panel;
     }
 
-    public void setOutputNames(String separation) {
+    private void setOutputNames(String separation) {
         String[] values = SEPARATIONS.get(separation);
         if (values == null) return;
         output_panel_0_border.setBorder(new TitledBorder(values[0]));
@@ -203,7 +204,29 @@ public class Layout {
         x_w_spinner.getModel().setValue(values[6]);
         y_w_spinner.getModel().setValue(values[7]);
         gamma_spinner.getModel().setValue(values[8]);
+    }
 
-
+    private void write(String path) {
+        if (texture != null) {
+            setOutputNames(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString());
+            Separation separation = SEPARATION_FUNCTIONS.get(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString()).get();
+            BufferedImage image = new BufferedImage(texture.getWidth() * 2, texture.getHeight() * 2, BufferedImage.TYPE_INT_RGB);
+            for (int i = 0; i < texture.getWidth(); i++) {
+                for (int j = 0; j < texture.getHeight(); j++) {
+                    Color3f color = new Color3f(texture.get(i, j));
+                    var colors = separation.separate(color);
+                    image.setRGB(i, j, color.getRGB());
+                    image.setRGB(i + texture.getWidth(), j, colors[0].getRGB());
+                    image.setRGB(i, j + texture.getHeight(), colors[1].getRGB());
+                    image.setRGB(i + texture.getWidth(), j + texture.getHeight(), colors[2].getRGB());
+                }
+            }
+            File file = new File(path);
+            try {
+                ImageIO.write(image, "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -10,7 +10,11 @@ public interface Separation {
     Color3f[] separate(Color3f input);
 
     static Separation getRGBtoRGBSeparation() {
-        Function<float[], Color3f[]> interpolate = coefficients -> new Color3f[]{new Color3f(coefficients[0]), new Color3f(coefficients[1]), new Color3f(coefficients[2])};
+        Color3f black = new Color3f(0, 0, 0);
+        Color3f red = new Color3f(255, 0, 0);
+        Color3f green = new Color3f(0, 255, 0);
+        Color3f blue = new Color3f(0, 0, 255);
+        Function<float[], Color3f[]> interpolate = coefficients -> new Color3f[]{Color3f.interpolate(black, red, coefficients[0]), Color3f.interpolate(black, green, coefficients[1]), Color3f.interpolate(black, blue, coefficients[2])};
         return color -> interpolate.apply(new float[]{color.red, color.green, color.blue});
     }
 
