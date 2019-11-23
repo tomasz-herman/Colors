@@ -4,14 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Window extends JFrame {
-    private Layout layout;
     private String title;
     public Window(String title, int width, int height){
         this.title = title;
-        layout = new Layout();
+        Layout layout = new Layout();
         setBackground(Color.BLACK);
         setForeground(Color.BLACK);
-        setContentPane(layout.getMain());
+        setContentPane(layout.getMainPanel());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle(title);
         setSize(new Dimension(width, height));

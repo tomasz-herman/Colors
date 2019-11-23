@@ -9,6 +9,11 @@ import java.util.function.Function;
 public interface Separation {
     Color3f[] separate(Color3f input);
 
+    static Separation getRGBtoRGBSeparation() {
+        Function<float[], Color3f[]> interpolate = coefficients -> new Color3f[]{new Color3f(coefficients[0]), new Color3f(coefficients[1]), new Color3f(coefficients[2])};
+        return color -> interpolate.apply(new float[]{color.red, color.green, color.blue});
+    }
+
     static Separation getRGBtoHSVSeparation() {
         Function<float[], Color3f[]> interpolate = coefficients -> new Color3f[]{new Color3f(coefficients[0]), new Color3f(coefficients[1]), new Color3f(coefficients[2])};
         return color -> {
@@ -18,7 +23,7 @@ public interface Separation {
             max = Math.max(color.blue, Math.max(color.red, color.green));
             delta = max - min;
             v = max;
-            if (delta < 0.00001f) {
+            if (delta < 0.0000001f) {
                 s = 0;
                 h = 0;
                 return interpolate.apply(new float[]{h, s, v});
@@ -30,15 +35,17 @@ public interface Separation {
                 h = Float.NaN;
                 return interpolate.apply(new float[]{h, s, v});
             }
-            if (color.red >= max) {
-                h = (color.green - color.blue) / delta;
-            } else if (color.green >= max) {
+            if (color.red == max) {
+                h = 6.0f + (color.green - color.blue) / delta;
+            } else if (color.green == max) {
                 h = 2.0f + (color.blue - color.red) / delta;
             } else {
                 h = 4.0f + (color.red - color.green) / delta;
             }
-            h /= 6.0f;
+            h = h / 6.0f;
             if (h < 0.0f) h += 1.0f;
+            if (h > 1.0f) h -= 1.0f;
+            System.out.println(h);
             return interpolate.apply(new float[]{h, s, v});
         };
     }
@@ -66,7 +73,7 @@ public interface Separation {
      */
     static Separation getRGBtoLabSeparation(float x_r, float y_r, float x_g, float y_g, float x_b, float y_b, float x_w, float y_w, float gamma) {
         final Color3f azure = new Color3f(0, 127, 255);
-        final Color3f orange = new Color3f(255, 127, 255);
+        final Color3f orange = new Color3f(255, 127, 0);
         final Color3f spring_green = new Color3f(0, 255, 127);
         final Color3f rose = new Color3f(255, 0, 127);
         final float X_r = x_r / y_r;
@@ -83,8 +90,8 @@ public interface Separation {
         final float Z_w = (1.0f - x_w - y_w) / y_w;
         final float e = 0.008856f;
         final float k = 903.3f;
-        final Function<Float,Float> f = x -> (x > e) ? (float) Math.pow(x, 0.33333333f) : (k * x + 16f) / 116f;
-        final Vector3f S = new Matrix3f(X_r, X_g, X_b, Y_r, Y_g, Y_b, Z_r, Z_g, Z_b).invert().transform(new Vector3f(X_w, Y_w, Z_w));
+        final Function<Float, Float> f = x -> (x > e) ? (float) Math.pow(x, 0.33333333f) : (k * x + 16f) / 116f;
+        final Vector3f S = new Matrix3f(X_r, X_g, X_b, Y_r, Y_g, Y_b, Z_r, Z_g, Z_b).invert().transformTranspose(new Vector3f(X_w, Y_w, Z_w));
         final Matrix3f M = new Matrix3f(
                 S.x * X_r, S.y * X_g, S.z * X_b,
                 S.x * Y_r, S.y * Y_g, S.z * Y_b,
@@ -100,7 +107,7 @@ public interface Separation {
             float L = 116f * f_y - 16f;
             float a = 500f * (f_x - f_y);
             float b = 200f * (f_y - f_z);
-            return interpolate.apply(new float[]{L/256f, (a + 128f)/256f, (b + 128f)/256f});
+            return interpolate.apply(new float[]{L / 256f, (a + 128f) / 256f, (b + 128f) / 256f});
         };
     }
 }

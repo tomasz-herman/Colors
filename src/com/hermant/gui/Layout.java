@@ -10,7 +10,6 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -55,14 +54,15 @@ public class Layout {
             "Lab", new String[]{"L", "a", "b"}
     );
     private final Map<String, Supplier<Separation>> SEPARATION_FUNCTIONS = Map.of(
+            "RGB", Separation::getRGBtoRGBSeparation,
             "YCbCr", Separation::getRGBtoYCbCrSeparation,
             "HSV", Separation::getRGBtoHSVSeparation,
             "Lab", () -> Separation.getRGBtoLabSeparation(
-                    (float)(double)x_r_spinner.getModel().getValue(), (float)(double)y_r_spinner.getModel().getValue(),
-                    (float)(double)x_g_spinner.getModel().getValue(), (float)(double)y_g_spinner.getModel().getValue(),
-                    (float)(double)x_b_spinner.getModel().getValue(), (float)(double)y_b_spinner.getModel().getValue(),
-                    (float)(double)x_w_spinner.getModel().getValue(), (float)(double)y_w_spinner.getModel().getValue(),
-                    (float)(double)gamma_spinner.getModel().getValue())
+                    (float) (double) x_r_spinner.getModel().getValue(), (float) (double) y_r_spinner.getModel().getValue(),
+                    (float) (double) x_g_spinner.getModel().getValue(), (float) (double) y_g_spinner.getModel().getValue(),
+                    (float) (double) x_b_spinner.getModel().getValue(), (float) (double) y_b_spinner.getModel().getValue(),
+                    (float) (double) x_w_spinner.getModel().getValue(), (float) (double) y_w_spinner.getModel().getValue(),
+                    (float) (double) gamma_spinner.getModel().getValue())
     );
 
     private Canvas input_canvas;
@@ -99,7 +99,6 @@ public class Layout {
         x_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0f, 1.0f, 0.01f));
         y_w_spinner.setModel(new SpinnerNumberModel(0.33f, 0.0f, 1.0f, 0.01f));
         gamma_spinner.setModel(new SpinnerNumberModel(1.0f, 0.0f, 10.0f, 0.1f));
-        input_canvas.setPixel(30, 30, new Color3f(127, 255, 0));
         save_button.setMnemonic('s');
         load_button.setMnemonic('l');
         save_button.addActionListener(e -> {
@@ -128,7 +127,7 @@ public class Layout {
             }
         });
         separate_button.addActionListener(e -> {
-            if(texture != null){
+            if (texture != null) {
                 Separation separation = SEPARATION_FUNCTIONS.get(Objects.requireNonNull(separation_combo_box.getSelectedItem()).toString()).get();
                 for (int i = 0; i < output_canvas_0.getWidth(); i++) {
                     for (int j = 0; j < output_canvas_0.getHeight(); j++) {
@@ -146,7 +145,7 @@ public class Layout {
         });
     }
 
-    public Container getMain() {
+    public Container getMainPanel() {
         return main_panel;
     }
 
