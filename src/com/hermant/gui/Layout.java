@@ -8,6 +8,7 @@ import com.hermant.graphics.Texture;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -180,6 +181,22 @@ public class Layout {
         output_chooser = new JFileChooser();
         input_chooser.setCurrentDirectory(workingDirectory);
         output_chooser.setCurrentDirectory(workingDirectory);
+        input_chooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                } else {
+                    String filename = f.getName().toLowerCase();
+                    return filename.endsWith(".png") || filename.endsWith(".jpg")
+                            || filename.endsWith(".jpeg") || filename.endsWith(".bmp");
+                }
+            }
+            @Override
+            public String getDescription() {
+                return "Images (*.png, *.jpg, *.bmp, *.BMP, .*JPG, .*jpeg, *.PNG, .*JPEG)";
+            }
+        });
     }
 
     private void setWhitePoint(String illuminant) {
@@ -223,7 +240,13 @@ public class Layout {
             }
             File file = new File(path);
             try {
-                ImageIO.write(image, "png", file);
+                String format = null;
+                if(path.contains(".")){
+                    var tokens = path.split("\\.");
+                    format = tokens[tokens.length - 1];
+                }
+                if(format == null) throw new IOException("No format specified!");
+                ImageIO.write(image, format, file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
