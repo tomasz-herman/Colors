@@ -5,7 +5,8 @@ import java.awt.*;
 
 public class Window extends JFrame {
     private String title;
-    public Window(String title, int width, int height){
+
+    public Window(String title, int width, int height) {
         this.title = title;
         Layout layout = new Layout();
         setBackground(Color.BLACK);
@@ -22,7 +23,7 @@ public class Window extends JFrame {
         setVisible(true);
     }
 
-    public void setText(String text){
+    public void setText(String text) {
         setTitle(title + " " + text);
     }
 }

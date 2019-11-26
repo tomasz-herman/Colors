@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
-public class Canvas extends JPanel {
+public class Canvas extends JComponent {
     private final int width;
     private final int height;
     private final BufferedImage image;

@@ -192,6 +192,7 @@ public class Layout {
                             || filename.endsWith(".jpeg") || filename.endsWith(".bmp");
                 }
             }
+
             @Override
             public String getDescription() {
                 return "Images (*.png, *.jpg, *.bmp, *.BMP, .*JPG, .*jpeg, *.PNG, .*JPEG)";
@@ -241,11 +242,11 @@ public class Layout {
             File file = new File(path);
             try {
                 String format = null;
-                if(path.contains(".")){
+                if (path.contains(".")) {
                     var tokens = path.split("\\.");
                     format = tokens[tokens.length - 1];
                 }
-                if(format == null) throw new IOException("No format specified!");
+                if (format == null) throw new IOException("No format specified!");
                 ImageIO.write(image, format, file);
             } catch (IOException e) {
                 e.printStackTrace();
