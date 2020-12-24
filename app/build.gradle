@@ -1,0 +1,19 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    jcenter()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+dependencies {
+    implementation 'org.l33tlabs.twl:pngdecoder:1.0'
+    implementation "org.joml:joml:1.9.25"
+    implementation 'com.intellij:forms_rt:7.0.3'
+    testImplementation 'junit:junit:4.13'
+}
+
+application {
+    mainClass = 'com.hermant.Main'
+}
